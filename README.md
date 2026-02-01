@@ -78,5 +78,5 @@ Expected columns: `title,category,area,description,email` with optional `priorit
 - If using HTTPS + a different host, update `window.__CITY_API_BASE__` accordingly; the front-end uses relative fetch paths only via that variable.
 
 ## License
-No explicit license provided; treat as private/internal unless the owner states otherwise.
+None
 
