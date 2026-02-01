@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Profile – MDKP City Services</title>
+
+    <!-- Bootstrap & Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <!-- Global styles & app -->
+    <link rel="stylesheet" href="../styles.css" />
+    <script>window.__CITY_API_BASE__ = '/City-DB/api/public/index.php';</script>
+    <script src="../app.js" defer></script>
+    <script src="./profile.js" defer></script>
+</head>
+
+<body class="page-shell page-profile">
+    <!-- NAV -->
+    <nav class="navbar navbar-expand-lg bg-white border-bottom">
+        <div class="container py-2">
+            <a class="navbar-brand brand-badge" href="../index.html">
+                <span class="brand-dot"></span><span>MDKP City Services</span>
+            </a>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <a href="dashboard.html" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+                <button id="themeToggle" class="btn btn-light theme-toggle">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" id="residentUserMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img id="navAvatarImg" class="nav-avatar-img" alt="Profile menu">
+                        <span class="d-none d-md-inline">Account</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user me-2"></i>Profile</a></li>
+                        <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#logoutConfirmResident"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="section flex-grow-1 py-5">
+        <div class="container py-4" style="max-width: 920px;">
+            <h1 class="h4 mb-3">My Profile</h1>
+            <p class="text-secondary mb-4">Update your name, address, avatar, or change your password.</p>
+
+            <div id="profileAlert" class="alert alert-success d-none" role="alert"></div>
+            <div id="profileError" class="alert alert-danger d-none" role="alert"></div>
+
+            <div class="row g-4">
+                <!-- Avatar -->
+                <div class="col-md-4">
+                    <div class="card p-3 h-100">
+                        <h2 class="h6 mb-3">Avatar</h2>
+                        <div class="text-center mb-3">
+                            <img id="avatarPreview" alt="Avatar" class="rounded-circle shadow-soft"
+                                style="width:120px;height:120px;object-fit:cover;background:#eaeef6">
+                        </div>
+                        <input type="file" id="avatarInput" accept="image/*" class="form-control" />
+                        <div class="small text-secondary mt-2">Square photos look best · JPG/PNG</div>
+                    </div>
+                </div>
+
+                <!-- Profile form -->
+                <div class="col-md-8">
+                    <div class="card p-3">
+                        <h2 class="h6 mb-3">Account</h2>
+                        <form id="profileForm" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">First name</label>
+                                    <input id="firstName" class="form-control" required />
+                                    <div class="invalid-feedback">Required.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Last name</label>
+                                    <input id="lastName" class="form-control" required />
+                                    <div class="invalid-feedback">Required.</div>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label">Email</label>
+                                    <input id="email" class="form-control" readonly />
+                                    <div class="form-text">Email cannot be changed.</div>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label">Address</label>
+                                    <input id="address" class="form-control" placeholder="Street, Taman, Postcode" />
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <h2 class="h6 mb-3">Change Password <span class="text-secondary">(optional)</span></h2>
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label">Current password</label>
+                                    <div class="input-group">
+                                        <input id="currentPassword" type="password" class="form-control"
+                                            autocomplete="current-password">
+                                        <button class="btn btn-outline-secondary toggle-pass" type="button"
+                                            data-target="currentPassword">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">Required only if you’re changing your password.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">New password</label>
+                                    <div class="input-group">
+                                        <input id="newPassword" type="password" class="form-control"
+                                            autocomplete="new-password">
+                                        <button class="btn btn-outline-secondary toggle-pass" type="button"
+                                            data-target="newPassword">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Confirm new password</label>
+                                    <div class="input-group">
+                                        <input id="confirmNewPassword" type="password" class="form-control"
+                                            autocomplete="new-password">
+                                        <button class="btn btn-outline-secondary toggle-pass" type="button"
+                                            data-target="confirmNewPassword">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2 mt-4">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fa-solid fa-floppy-disk me-2"></i>Save changes
+                                </button>
+                                <button class="btn btn-outline-danger" id="deleteAccountBtn" type="button">
+                                    <i class="fa-solid fa-user-xmark me-2"></i>Delete account
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="py-4 bg-white">
+        <div class="container small text-secondary">© <span id="year"></span> Majlis Daerah Kubang Pasu</div>
+    </footer>
+
+    <div class="modal fade" id="logoutConfirmResident" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--card-bg);">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Log out</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to log out?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Stay on page</button>
+                    <button type="button" class="btn btn-danger" id="confirmLogoutResident">Log out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>document.getElementById('year').textContent = new Date().getFullYear()</script>
+</body>
+
+</html>

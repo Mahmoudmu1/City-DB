@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS notices (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    type ENUM('info','warn','alert') NOT NULL DEFAULT 'info',
+    title VARCHAR(150) NOT NULL,
+    message TEXT NOT NULL,
+    audience ENUM('all','residents','guests') NOT NULL DEFAULT 'all',
+    start_at DATETIME NULL,
+    end_at DATETIME NULL,
+    active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

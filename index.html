@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Online City Service Dashboard – Majlis Daerah Kubang Pasu</title>
+
+    <!-- Bootstrap & Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <!-- Chart.js (for later) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
+    <!-- Global styles & app js -->
+    <link rel="stylesheet" href="styles.css" />
+    <script>window.__CITY_API_BASE__ = '/City-DB/api/public/index.php';</script>
+    <script src="app.js" defer></script>
+    <script src="resident/resident.js" defer></script>
+
+</head>
+
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg bg-white sticky-top border-bottom">
+        <div class="container py-2">
+            <a class="navbar-brand brand-badge" href="#">
+                <span class="brand-dot" aria-hidden="true"></span>
+                <span>MDKP City Services</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-3">
+                    <li class="nav-item"><a class="nav-link" href="#portals">Portals</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="lang" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i class="fa-solid fa-globe"></i> EN
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="lang">
+                            <li><a class="dropdown-item" href="#" data-lang="en">English</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="bm">Bahasa Melayu</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item d-none d-lg-block">
+                        <a class="btn btn-primary" href="#portals"><i class="fa-solid fa-bullhorn me-2"></i>Report an
+                            Issue</a>
+                    </li>
+                    <li class="nav-item">
+                        <button id="themeToggle" class="btn btn-light theme-toggle" title="Toggle theme">
+                            <i class="fa-solid fa-moon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero py-5 py-lg-6">
+        <div class="container">
+            <div class="row align-items-center gy-4">
+                <div class="col-lg-6">
+                    <span class="badge badge-soft mb-3"><i class="fa-solid fa-city me-2"></i>Majlis Daerah Kubang
+                        Pasu</span>
+                    <h1 class="display-5 fw-bold mb-3">Online City Service Dashboard</h1>
+                    <p class="lead text-secondary mb-4">Report issues, track progress, and explore city insights—
+                        all in one place for residents and administrators.</p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="resident/login.html" class="btn btn-primary"><i
+                                class="fa-solid fa-user me-2"></i>Resident Portal</a>
+                        <a href="admin/login.html" class="btn btn-outline-primary"><i
+                                class="fa-solid fa-shield-halved me-2"></i>Admin Login</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img class="hero-illustration img-fluid" src="assets/hero-city.svg" alt="City illustration"
+                        onerror="this.style.display='none'">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- QUICK HIGHLIGHTS -->
+    <section class="py-4">
+        <div class="container">
+            <div class="row g-3" id="kpiRow">
+                <div class="col-6 col-lg-3">
+                    <div class="kpi p-3 text-center">
+                        <div class="text-secondary small">Total Requests</div>
+                        <div class="h3 mb-0" id="kpiTotal">--</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="kpi p-3 text-center">
+                        <div class="text-secondary small">Pending</div>
+                        <div class="h3 mb-0" id="kpiPending">--</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="kpi p-3 text-center">
+                        <div class="text-secondary small">In Progress</div>
+                        <div class="h3 mb-0" id="kpiInProg">--</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="kpi p-3 text-center">
+                        <div class="text-secondary small">Completed</div>
+                        <div class="h3 mb-0" id="kpiDone">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CITY SNAPSHOT -->
+    <section class="py-4">
+        <div class="container">
+            <div class="row g-4 align-items-stretch">
+                <div class="col-lg-8">
+                    <div class="dash-card h-100">
+                        <div class="dash-card-header">
+                            <div>
+                                <h2 class="h5 mb-1">City Overview</h2>
+                                <p class="text-secondary mb-0">Quick snapshot of municipal services in Kubang Pasu.</p>
+                            </div>
+                            <div class="city-weather text-end">
+                                <div class="fw-semibold">Weather</div>
+                                <div class="small text-secondary">28°C · Partly cloudy</div>
+                                <span class="badge weather-badge">AQI 42 · Good</span>
+                            </div>
+                        </div>
+                        <div class="dash-card-body">
+                            <div class="overview-placeholder">
+                                <h3 class="h6 mb-2">Detailed metrics coming soon</h3>
+                                <p class="text-secondary mb-4">This area will surface live weather, maintenance KPIs,
+                                    satisfaction scores, and other insights to give residents and administrators a
+                                    faster sense of what&apos;s happening in the district.</p>
+                                <ul class="list-unstyled small text-secondary mb-0">
+                                    <li><i class="fa-solid fa-sun text-warning me-2"></i>Today: 28°C, light clouds,
+                                        gentle breeze.</li>
+                                    <li><i class="fa-solid fa-faucet-drip text-primary me-2"></i>Water pressure steady ·
+                                        0 reported outages.</li>
+                                    <li><i class="fa-solid fa-tree-city text-success me-2"></i>Consider highlighting
+                                        park maintenance status or waste collection coverage here.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="dash-card h-100 recent-alerts-card">
+                        <div class="dash-card-header">
+                            <div>
+                                <h2 class="h6 mb-1"><i class="fa-solid fa-triangle-exclamation me-2"></i>Recent Alerts</h2>
+                                <p class="text-secondary small mb-0">Latest announcements from MDKP city services.</p>
+                            </div>
+                            <span class="badge alerts-status">Live</span>
+                        </div>
+                        <div class="dash-card-body">
+                            <div id="siteNoticeHost" class="recent-alerts-list" style="display:none;">
+                                <!-- Notices injected by resident.js -->
+                            </div>
+                            <div id="recentAlertsEmpty" class="recent-alerts-empty text-secondary small">
+                                No alerts right now. Enjoy the calm!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PORTALS -->
+    <section id="portals" class="py-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-lg-8">
+                    <h2 class="h3 mb-1">Choose a Portal</h2>
+                    <p class="text-secondary mb-0">Use the Resident portal to submit or track requests. Admins use the
+                        Admin portal to manage and analyse city services.</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <!-- Resident Card -->
+                <div class="col-md-6">
+                    <div class="portal-card p-4 h-100">
+                        <div class="d-flex align-items-start gap-3 mb-3">
+                            <div class="btn btn-light rounded-circle p-3 border"><i class="fa-solid fa-users"></i></div>
+                            <div>
+                                <h3 class="h5 mb-1">Resident Portal</h3>
+                                <p class="text-secondary mb-0">Submit issues (road, waste, lighting, water), attach
+                                    photos, and track updates.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="resident/login.html" class="btn btn-primary"><i
+                                    class="fa-solid fa-right-to-bracket me-2"></i>Login</a>
+                            <a href="resident/signup.html" class="btn btn-outline-primary">Create account</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Admin Card -->
+                <div class="col-md-6">
+                    <div class="portal-card p-4 h-100">
+                        <div class="d-flex align-items-start gap-3 mb-3">
+                            <div class="btn btn-light rounded-circle p-3 border"><i class="fa-solid fa-shield"></i>
+                            </div>
+                            <div>
+                                <h3 class="h5 mb-1">Admin Portal</h3>
+                                <p class="text-secondary mb-0">View, triage and assign requests, monitor SLAs, and
+                                    analyse city metrics.</p>
+                            </div>
+                        </div>
+                        <a href="admin/login.html" class="btn btn-outline-dark"><i
+                                class="fa-solid fa-lock me-2"></i>Admin Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features" class="feature-section bg-white border-top border-bottom">
+        <div class="container">
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon text-primary fs-3"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <h3 class="h6 mb-1">Location-aware reports</h3>
+                    <p class="text-secondary small mb-0">Attach GPS and photos to help crews respond faster.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon text-primary fs-3"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3 class="h6 mb-1">Real-time dashboards</h3>
+                    <p class="text-secondary small mb-0">Track requests by area, category and status at a glance.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon text-primary fs-3"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3 class="h6 mb-1">Secure by design</h3>
+                    <p class="text-secondary small mb-0">Admin-only access, audit logs and role-based controls (coming soon).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="py-5 bg-white border-top">
+        <div class="container">
+            <div class="row g-4 contact-row">
+                <div class="col-lg-8">
+                    <div class="card p-4 shadow-sm border-0 h-100">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-light text-primary">Contact</span>
+                            <span class="text-secondary small">Majlis Daerah Kubang Pasu</span>
+                        </div>
+                        <h2 class="h4 mb-3">Majlis Daerah Kubang Pasu</h2>
+                        <ul class="list-unstyled mb-0 text-secondary">
+                            <li class="mb-2"><i class="fa-solid fa-location-dot me-2 text-primary"></i>Kompleks Pentadbiran MDKP, Bandar Darulaman, 06000 Jitra, Kedah.</li>
+                            <li class="mb-2"><i class="fa-solid fa-phone me-2 text-primary"></i>+60 4-917 4000</li>
+                            <li class="mb-2"><i class="fa-solid fa-envelope me-2 text-primary"></i>info@mdkp.gov.my</li>
+                        </ul>
+                        <div class="contact-map mt-4">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7984.768995957516!2d100.4205939!3d6.2676696999999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x304b295b9b1f9cb7%3A0xd4983ed17f646c5c!2sMajlis%20Daerah%20Kubang%20Pasu!5e0!3m2!1sen!2smy!4v1701571200000!5m2!1sen!2smy"
+                                allowfullscreen=""
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="contact-stack">
+                        <div class="card p-4 shadow-sm border-0">
+                            <h3 class="h6 mb-2">Office Hours</h3>
+                            <p class="text-secondary small mb-2">Monday – Friday: 8:00 AM – 5:00 PM</p>
+                            <p class="text-secondary small mb-0">Closed on weekends & public holidays.</p>
+                        </div>
+                        <div class="card p-4 shadow-sm border-0 contact-form-card">
+                            <h3 class="h6 mb-3">Contact MDKP</h3>
+                            <div id="contactAlert" class="alert d-none"></div>
+                            <form id="contactForm" class="row g-3" novalidate>
+                                <div class="col-md-6">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="contactFirst" name="firstName" placeholder="Ali">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="contactLast" name="lastName" placeholder="Rahman">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Email<span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="contactEmail" name="email" required placeholder="you@example.com">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Message<span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="contactMessage" name="message" rows="4" required placeholder="How can we help?"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">Send</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-4 bg-white">
+        <div class="container d-flex flex-column flex-lg-row align-items-center justify-content-between gap-3">
+            <div class="small text-secondary">© <span id="year"></span> Majlis Daerah Kubang Pasu · All rights reserved.
+            </div>
+            <div class="d-flex gap-3 small">
+                <a class="link-secondary text-decoration-none" href="#">Privacy</a>
+                <a class="link-secondary text-decoration-none" href="#">Terms</a>
+                <a class="link-secondary text-decoration-none" href="#contact">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Year in footer
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        const API_BASE = window.__CITY_API_BASE__ || '/City-DB/api/public/index.php';
+
+        function setSubmitState(btn, isLoading, loadingText = 'Submitting…') {
+            if (!btn) return;
+            if (!btn.dataset.originalHtml) {
+                btn.dataset.originalHtml = btn.innerHTML;
+            }
+            btn.disabled = isLoading;
+            btn.innerHTML = isLoading
+                ? `<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>${loadingText}`
+                : btn.dataset.originalHtml;
+        }
+
+        const contactForm = document.getElementById('contactForm');
+        const contactAlert = document.getElementById('contactAlert');
+        const contactSubmit = contactForm?.querySelector('button[type="submit"]');
+        if (contactForm) {
+            contactForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const payload = {
+                    firstName: document.getElementById('contactFirst')?.value.trim() || '',
+                    lastName: document.getElementById('contactLast')?.value.trim() || '',
+                    email: document.getElementById('contactEmail')?.value.trim(),
+                    message: document.getElementById('contactMessage')?.value.trim(),
+                };
+                const show = (msg, type = 'success') => {
+                    if (!contactAlert) return;
+                    contactAlert.textContent = msg;
+                    contactAlert.classList.remove('d-none', 'alert-success', 'alert-danger');
+                    contactAlert.classList.add(type === 'success' ? 'alert-success' : 'alert-danger');
+                };
+                if (!payload.email || !payload.message) {
+                    show('Email and message are required.', 'danger');
+                    return;
+                }
+                setSubmitState(contactSubmit, true, 'Sending…');
+                try {
+                    const res = await fetch(`${API_BASE}/public/contact`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
+                    const data = await res.json();
+                    if (!res.ok || data.error) throw new Error(data.error || 'Unable to send message');
+                    show('Thank you, your message has been sent to MDKP.', 'success');
+                    contactForm.reset();
+                } catch (err) {
+                    show(err.message || 'Unable to send message.', 'danger');
+                } finally {
+                    setSubmitState(contactSubmit, false);
+                }
+            });
+        }
+
+        // Fetch live KPIs for the landing page
+        window.addEventListener('DOMContentLoaded', () => {
+            const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            // show placeholders while loading
+            set('kpiTotal', '--');
+            set('kpiPending', '--');
+            set('kpiInProg', '--');
+            set('kpiDone', '--');
+
+            fetch(`${API_BASE}/public/kpi`)
+                .then((res) => res.json())
+                .then((json) => json.data || json)
+                .then((data) => {
+                    if (!data) return;
+                    set('kpiTotal', data.total ?? 0);
+                    set('kpiPending', data.pending ?? 0);
+                    set('kpiInProg', data.in_progress ?? 0);
+                    set('kpiDone', data.completed ?? 0);
+                })
+                .catch(() => {
+                    // leave placeholders on error
+                });
+        });
+    </script>
+</body>
+
+</html>

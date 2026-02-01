@@ -1,0 +1,2 @@
+ALTER TABLE requests
+    ADD COLUMN channel VARCHAR(50) NOT NULL DEFAULT 'web' AFTER title;

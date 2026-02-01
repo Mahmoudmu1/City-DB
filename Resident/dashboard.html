@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resident Dashboard – MDKP City Services</title>
+
+  <!-- Bootstrap & Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Global styles & JS -->
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.__CITY_API_BASE__ = '/City-DB/api/public/index.php';</script>
+  <script src="../app.js" defer></script>
+  <script src="./resident.js" defer></script>
+</head>
+
+<body class="page-shell page-dashboard">
+  <!-- NAV -->
+  <nav class="navbar navbar-expand-lg bg-white border-bottom">
+    <div class="container py-2">
+      <a class="navbar-brand brand-badge" href="../index.html">
+        <span class="brand-dot"></span><span>MDKP City Services</span>
+      </a>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <button id="themeToggle" class="btn btn-light theme-toggle" title="Toggle theme">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="notifications.html" class="btn btn-outline-secondary position-relative" title="View Notifications">
+          <i class="fa-solid fa-bell me-2"></i>Notifications
+          <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+        </a>
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" id="residentUserMenu" data-bs-toggle="dropdown" aria-expanded="false">
+            <img id="navAvatarImg" class="nav-avatar-img" alt="Profile menu">
+            <span class="d-none d-md-inline">Account</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user me-2"></i>Profile</a></li>
+            <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#logoutConfirmResident"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout</button></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="section flex-grow-1">
+  <div class="container">
+
+      <!-- Greeting -->
+      <div class="mb-4">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <!-- NOTE: src removed so JS can inject initials/photo -->
+          <img id="residentAvatar" alt="Profile Avatar" class="rounded-circle shadow-soft"
+            style="width:48px;height:48px;object-fit:cover;background:#eaeef6">
+          <div>
+            <h1 class="h4 mb-1">Welcome, <span id="residentName">Resident</span></h1>
+            <p class="text-secondary mb-0">Submit a new request or track your existing ones.</p>
+          </div>
+        </div>
+        <div>
+          <a class="btn btn-outline-primary btn-sm" href="feedback.html">
+            <i class="fa-solid fa-star me-2"></i>Give Feedback
+          </a>
+        </div>
+      </div>
+
+      <!-- Notice banner (admin → residents) -->
+      <div id="residentNoticeWrap" class="mb-3 d"></div>
+
+      <!-- KPI row -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+          <div class="kpi p-3 text-center">
+            <div class="label">Total</div>
+            <div class="value" id="kpiTotal">0</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="kpi p-3 text-center">
+            <div class="label">Pending</div>
+            <div class="value" id="kpiPending">0</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="kpi p-3 text-center">
+            <div class="label">In Progress</div>
+            <div class="value" id="kpiInProg">0</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="kpi p-3 text-center">
+            <div class="label">Completed</div>
+            <div class="value" id="kpiDone">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-xl-4">
+          <div class="card p-3 h-100">
+            <h2 class="h6 mb-3">Submit Request</h2>
+
+            <div id="newAlert" class="alert alert-success d-none" role="alert" aria-live="polite"></div>
+
+            <form id="requestForm" novalidate>
+              <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select id="reqCategory" class="form-select" required>
+                  <option value="" selected disabled>Choose a category</option>
+                  <option>Road & Drainage</option>
+                  <option>Waste</option>
+                  <option>Street Lighting</option>
+                  <option>Water</option>
+                  <option>Safety</option>
+                  <option>Injury</option>
+                  <option>Others</option>
+                </select>
+                <div class="invalid-feedback">Please select a category.</div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="reqTitle">Title</label>
+                <input id="reqTitle" class="form-control" placeholder="Short title" required maxlength="80" />
+                <div class="invalid-feedback">Title is required.</div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="request-area">Location / Area</label>
+                <select id="request-area" class="form-control" required>
+                  <option value="">Choose an area</option>
+                  <option value="Changlun">Changlun</option>
+                  <option value="Jitra">Jitra</option>
+                  <option value="Bukit Kayu Hitam">Bukit Kayu Hitam</option>
+                  <option value="Kodiang">Kodiang</option>
+                  <option value="UUM">UUM</option>
+                  <option value="Sg. Kob">Sg. Kob</option>
+                  <option value="Others">Others</option>
+                </select>
+                <small class="form-text text-muted">
+                  For exact location (street, landmark, block number), please describe it in the Description box.
+                </small>
+                <div class="invalid-feedback">Please select an area.</div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="reqPriority">Priority</label>
+                <select id="reqPriority" class="form-select" required>
+                  <option>Low</option>
+                  <option selected>Medium</option>
+                  <option>High</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="reqDesc">Description</label>
+                <textarea id="reqDesc" class="form-control" rows="3" placeholder="Describe the issue..."
+                  required></textarea>
+                <div class="invalid-feedback">Please add a description.</div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="reqPhoto">Photo (optional)</label>
+                <input id="reqPhoto" name="photo" type="file" class="form-control" accept="image/*" />
+                <div class="form-text">Add a clear photo to speed up processing.</div>
+                <div class="form-text">Maximum file size: 5MB (JPG, PNG only)</div>
+              </div>
+
+              <button class="btn btn-primary w-100" type="submit">
+                <i class="fa-solid fa-paper-plane me-2"></i>Submit
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="col-xl-8">
+          <div class="card p-3 mb-4">
+            <div class="d-flex flex-column flex-lg-row gap-3">
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h2 class="h6 mb-0">My Requests</h2>
+                  <div class="table-tools">
+                    <label for="filterStatus" class="visually-hidden">Filter by status</label>
+                    <select id="filterStatus" class="form-select form-select-sm" aria-label="Filter by status">
+                      <option value="">All statuses</option>
+                      <option>Pending</option>
+                      <option>In Progress</option>
+                      <option>Completed</option>
+                      <option>Rejected</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="table-responsive">
+                  <table class="table align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th class="text-center" style="width:44px" title="Has photo">Image</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Area</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+                    <tbody id="requestTbody">
+                      <tr class="text-muted">
+                        <td colspan="8" class="text-center py-4">No requests yet. Submit your first one →</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-lg-6">
+              <div class="chart-card status-chart-card h-100">
+                <h2 class="h6 mb-3">Status Breakdown</h2>
+                <canvas id="statusChart" height="280"></canvas>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="dash-card resident-alerts-card alerts-card h-100">
+                <div class="dash-card-header">
+                  <div>
+                    <h2 class="h6 mb-1"><i class="fa-solid fa-bullhorn me-2"></i>Service Alerts</h2>
+                    <p class="text-secondary small mb-0">Latest notices affecting your area.</p>
+                  </div>
+                  <span class="badge alerts-status">Live</span>
+                </div>
+                <div class="dash-card-body">
+                  <div id="residentAlertList" class="recent-alerts-list d-none"></div>
+                  <div id="residentAlertEmpty" class="recent-alerts-empty text-secondary small">No alerts right now.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-4 bg-white">
+    <div class="container small text-secondary">© <span id="year"></span> Majlis Daerah Kubang Pasu</div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    window.addEventListener('DOMContentLoaded', () => {
+      const t = document.getElementById('reqTitle');
+      if (t) t.focus();
+    });
+  </script>
+
+  <!-- Photo Preview Modal -->
+  <div class="modal fade" id="photoPreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content" style="background: var(--card-bg);">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fa-solid fa-camera me-2"></i>Photo Preview</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="previewImg" src="" alt="Request photo" class="img-fluid rounded shadow-soft" />
+          <div class="small text-secondary mt-2" id="previewCaption"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resident Photo Modal -->
+  <div class="modal fade" id="resident-photo-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Request Photo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="resident-photo-modal-img" class="modal-photo" alt="Request photo preview">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Request Details Modal -->
+  <div class="modal fade" id="requestDetailsModal" tabindex="-1" aria-labelledby="requestDetailsLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="requestDetailsLabel">Request Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <dl class="row mb-0">
+            <dt class="col-sm-3">Title</dt>
+            <dd class="col-sm-9" id="detailTitle">–</dd>
+            <dt class="col-sm-3">Category</dt>
+            <dd class="col-sm-9" id="detailCategory">–</dd>
+            <dt class="col-sm-3">Area</dt>
+            <dd class="col-sm-9" id="detailArea">–</dd>
+            <dt class="col-sm-3">Priority</dt>
+            <dd class="col-sm-9" id="detailPriority">–</dd>
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9" id="detailStatus">–</dd>
+            <dt class="col-sm-3">ETA</dt>
+            <dd class="col-sm-9" id="detailEta">–</dd>
+            <dt class="col-sm-3">Description</dt>
+            <dd class="col-sm-9" id="detailDesc" class="text-secondary">–</dd>
+            <dt class="col-sm-3 d-none" id="detailPhotoLabel">Photo</dt>
+            <dd class="col-sm-9 d-none" id="detailPhotoWrap">
+              <img id="detailPhoto" src="" alt="Request photo" class="modal-photo img-fluid rounded">
+            </dd>
+          </dl>
+          <div class="mt-4">
+            <h6 class="mb-2">Timeline</h6>
+            <div id="detailTimeline" class="timeline-list small text-secondary">No updates yet.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logout Confirm Modal -->
+  <div class="modal fade" id="logoutConfirmResident" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background: var(--card-bg);">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Log out</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to log out?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Stay on dashboard</button>
+          <button type="button" class="btn btn-danger" id="confirmLogoutResident">Log out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
